@@ -310,14 +310,6 @@ class DeepLearningDSLParser ( Parser ):
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_program
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterProgram" ):
-                listener.enterProgram(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitProgram" ):
-                listener.exitProgram(self)
-
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitProgram" ):
                 return visitor.visitProgram(self)
@@ -363,14 +355,6 @@ class DeepLearningDSLParser ( Parser ):
 
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_statement_list
-
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterStatement_list" ):
-                listener.enterStatement_list(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitStatement_list" ):
-                listener.exitStatement_list(self)
 
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitStatement_list" ):
@@ -448,14 +432,6 @@ class DeepLearningDSLParser ( Parser ):
 
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_statement
-
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterStatement" ):
-                listener.enterStatement(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitStatement" ):
-                listener.exitStatement(self)
 
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitStatement" ):
@@ -546,14 +522,6 @@ class DeepLearningDSLParser ( Parser ):
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_assignment
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterAssignment" ):
-                listener.enterAssignment(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitAssignment" ):
-                listener.exitAssignment(self)
-
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitAssignment" ):
                 return visitor.visitAssignment(self)
@@ -601,14 +569,6 @@ class DeepLearningDSLParser ( Parser ):
 
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_expression
-
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterExpression" ):
-                listener.enterExpression(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitExpression" ):
-                listener.exitExpression(self)
 
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitExpression" ):
@@ -661,14 +621,6 @@ class DeepLearningDSLParser ( Parser ):
 
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_expr_rest
-
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterExpr_rest" ):
-                listener.enterExpr_rest(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitExpr_rest" ):
-                listener.exitExpr_rest(self)
 
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitExpr_rest" ):
@@ -739,14 +691,6 @@ class DeepLearningDSLParser ( Parser ):
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_term
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterTerm" ):
-                listener.enterTerm(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitTerm" ):
-                listener.exitTerm(self)
-
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitTerm" ):
                 return visitor.visitTerm(self)
@@ -801,14 +745,6 @@ class DeepLearningDSLParser ( Parser ):
 
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_term_rest
-
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterTerm_rest" ):
-                listener.enterTerm_rest(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitTerm_rest" ):
-                listener.exitTerm_rest(self)
 
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitTerm_rest" ):
@@ -888,14 +824,6 @@ class DeepLearningDSLParser ( Parser ):
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_factor
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterFactor" ):
-                listener.enterFactor(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitFactor" ):
-                listener.exitFactor(self)
-
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitFactor" ):
                 return visitor.visitFactor(self)
@@ -944,14 +872,6 @@ class DeepLearningDSLParser ( Parser ):
 
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_factor_rest
-
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterFactor_rest" ):
-                listener.enterFactor_rest(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitFactor_rest" ):
-                listener.exitFactor_rest(self)
 
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitFactor_rest" ):
@@ -1038,14 +958,6 @@ class DeepLearningDSLParser ( Parser ):
 
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_base
-
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterBase" ):
-                listener.enterBase(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitBase" ):
-                listener.exitBase(self)
 
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitBase" ):
@@ -1157,14 +1069,6 @@ class DeepLearningDSLParser ( Parser ):
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_unary_expr
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterUnary_expr" ):
-                listener.enterUnary_expr(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitUnary_expr" ):
-                listener.exitUnary_expr(self)
-
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitUnary_expr" ):
                 return visitor.visitUnary_expr(self)
@@ -1234,14 +1138,6 @@ class DeepLearningDSLParser ( Parser ):
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_trig_func
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterTrig_func" ):
-                listener.enterTrig_func(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitTrig_func" ):
-                listener.exitTrig_func(self)
-
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitTrig_func" ):
                 return visitor.visitTrig_func(self)
@@ -1297,14 +1193,6 @@ class DeepLearningDSLParser ( Parser ):
 
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_matrix_expr
-
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterMatrix_expr" ):
-                listener.enterMatrix_expr(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitMatrix_expr" ):
-                listener.exitMatrix_expr(self)
 
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitMatrix_expr" ):
@@ -1367,14 +1255,6 @@ class DeepLearningDSLParser ( Parser ):
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_matrix_content
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterMatrix_content" ):
-                listener.enterMatrix_content(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitMatrix_content" ):
-                listener.exitMatrix_content(self)
-
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitMatrix_content" ):
                 return visitor.visitMatrix_content(self)
@@ -1423,14 +1303,6 @@ class DeepLearningDSLParser ( Parser ):
 
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_matrix_content_rest
-
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterMatrix_content_rest" ):
-                listener.enterMatrix_content_rest(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitMatrix_content_rest" ):
-                listener.exitMatrix_content_rest(self)
 
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitMatrix_content_rest" ):
@@ -1494,14 +1366,6 @@ class DeepLearningDSLParser ( Parser ):
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_matrix_row
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterMatrix_row" ):
-                listener.enterMatrix_row(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitMatrix_row" ):
-                listener.exitMatrix_row(self)
-
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitMatrix_row" ):
                 return visitor.visitMatrix_row(self)
@@ -1549,14 +1413,6 @@ class DeepLearningDSLParser ( Parser ):
 
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_expression_list
-
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterExpression_list" ):
-                listener.enterExpression_list(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitExpression_list" ):
-                listener.exitExpression_list(self)
 
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitExpression_list" ):
@@ -1606,14 +1462,6 @@ class DeepLearningDSLParser ( Parser ):
 
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_expression_list_rest
-
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterExpression_list_rest" ):
-                listener.enterExpression_list_rest(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitExpression_list_rest" ):
-                listener.exitExpression_list_rest(self)
 
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitExpression_list_rest" ):
@@ -1697,14 +1545,6 @@ class DeepLearningDSLParser ( Parser ):
 
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_matrix_operation
-
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterMatrix_operation" ):
-                listener.enterMatrix_operation(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitMatrix_operation" ):
-                listener.exitMatrix_operation(self)
 
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitMatrix_operation" ):
@@ -1839,14 +1679,6 @@ class DeepLearningDSLParser ( Parser ):
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_conditional
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterConditional" ):
-                listener.enterConditional(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitConditional" ):
-                listener.exitConditional(self)
-
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitConditional" ):
                 return visitor.visitConditional(self)
@@ -1909,14 +1741,6 @@ class DeepLearningDSLParser ( Parser ):
 
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_else_part
-
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterElse_part" ):
-                listener.enterElse_part(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitElse_part" ):
-                listener.exitElse_part(self)
 
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitElse_part" ):
@@ -1982,14 +1806,6 @@ class DeepLearningDSLParser ( Parser ):
 
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_condition
-
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterCondition" ):
-                listener.enterCondition(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitCondition" ):
-                listener.exitCondition(self)
 
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitCondition" ):
@@ -2062,14 +1878,6 @@ class DeepLearningDSLParser ( Parser ):
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_rel_op
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterRel_op" ):
-                listener.enterRel_op(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitRel_op" ):
-                listener.exitRel_op(self)
-
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitRel_op" ):
                 return visitor.visitRel_op(self)
@@ -2119,14 +1927,6 @@ class DeepLearningDSLParser ( Parser ):
 
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_loop
-
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterLoop" ):
-                listener.enterLoop(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitLoop" ):
-                listener.exitLoop(self)
 
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitLoop" ):
@@ -2213,14 +2013,6 @@ class DeepLearningDSLParser ( Parser ):
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_for_loop
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterFor_loop" ):
-                listener.enterFor_loop(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitFor_loop" ):
-                listener.exitFor_loop(self)
-
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitFor_loop" ):
                 return visitor.visitFor_loop(self)
@@ -2300,14 +2092,6 @@ class DeepLearningDSLParser ( Parser ):
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_while_loop
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterWhile_loop" ):
-                listener.enterWhile_loop(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitWhile_loop" ):
-                listener.exitWhile_loop(self)
-
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitWhile_loop" ):
                 return visitor.visitWhile_loop(self)
@@ -2386,14 +2170,6 @@ class DeepLearningDSLParser ( Parser ):
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_function_def
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterFunction_def" ):
-                listener.enterFunction_def(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitFunction_def" ):
-                listener.exitFunction_def(self)
-
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitFunction_def" ):
                 return visitor.visitFunction_def(self)
@@ -2452,14 +2228,6 @@ class DeepLearningDSLParser ( Parser ):
 
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_param_list
-
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterParam_list" ):
-                listener.enterParam_list(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitParam_list" ):
-                listener.exitParam_list(self)
 
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitParam_list" ):
@@ -2520,14 +2288,6 @@ class DeepLearningDSLParser ( Parser ):
 
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_param_list_rest
-
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterParam_list_rest" ):
-                listener.enterParam_list_rest(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitParam_list_rest" ):
-                listener.exitParam_list_rest(self)
 
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitParam_list_rest" ):
@@ -2590,14 +2350,6 @@ class DeepLearningDSLParser ( Parser ):
 
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_return_stmt
-
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterReturn_stmt" ):
-                listener.enterReturn_stmt(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitReturn_stmt" ):
-                listener.exitReturn_stmt(self)
 
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitReturn_stmt" ):
@@ -2663,14 +2415,6 @@ class DeepLearningDSLParser ( Parser ):
 
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_function_call
-
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterFunction_call" ):
-                listener.enterFunction_call(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitFunction_call" ):
-                listener.exitFunction_call(self)
 
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitFunction_call" ):
@@ -2745,14 +2489,6 @@ class DeepLearningDSLParser ( Parser ):
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_arg_list
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterArg_list" ):
-                listener.enterArg_list(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitArg_list" ):
-                listener.exitArg_list(self)
-
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitArg_list" ):
                 return visitor.visitArg_list(self)
@@ -2813,14 +2549,6 @@ class DeepLearningDSLParser ( Parser ):
 
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_arg_list_rest
-
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterArg_list_rest" ):
-                listener.enterArg_list_rest(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitArg_list_rest" ):
-                listener.exitArg_list_rest(self)
 
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitArg_list_rest" ):
@@ -2907,14 +2635,6 @@ class DeepLearningDSLParser ( Parser ):
 
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_ml_function
-
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterMl_function" ):
-                listener.enterMl_function(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitMl_function" ):
-                listener.exitMl_function(self)
 
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitMl_function" ):
@@ -3063,14 +2783,6 @@ class DeepLearningDSLParser ( Parser ):
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_io_function
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterIo_function" ):
-                listener.enterIo_function(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitIo_function" ):
-                listener.exitIo_function(self)
-
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitIo_function" ):
                 return visitor.visitIo_function(self)
@@ -3171,14 +2883,6 @@ class DeepLearningDSLParser ( Parser ):
 
         def getRuleIndex(self):
             return DeepLearningDSLParser.RULE_plot_function
-
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterPlot_function" ):
-                listener.enterPlot_function(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitPlot_function" ):
-                listener.exitPlot_function(self)
 
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitPlot_function" ):

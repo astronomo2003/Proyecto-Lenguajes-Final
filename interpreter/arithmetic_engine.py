@@ -1,4 +1,5 @@
 import math
+import random
 
 class ArithmeticEngine:
     """Engine for arithmetic operations - no external libraries"""
