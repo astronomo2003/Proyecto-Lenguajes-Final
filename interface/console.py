@@ -4,45 +4,178 @@ import traceback
 sys.path.append('./interpreter')
 sys.path.append('./generated')
 
-# Import the main interpreter
-from dsl_interpreter import interpret_code
+# Import the main interpreter components
+from antlr4 import *
+from antlr4.error.ErrorListener import ErrorListener
+from DeepLearningDSLLexer import DeepLearningDSLLexer
+from DeepLearningDSLParser import DeepLearningDSLParser
+from dsl_interpreter import DSLInterpreter, DSLErrorListener
+
+class PersistentDSLInterpreter:
+    """Wrapper for DSL interpreter that maintains state across executions"""
+    
+    def __init__(self):
+        self.interpreter = DSLInterpreter()
+        self.error_listener = DSLErrorListener()
+    
+    def execute(self, code):
+        """Execute code while maintaining interpreter state"""
+        try:
+            # Create input stream
+            input_stream = InputStream(code)
+            
+            # Create lexer
+            lexer = DeepLearningDSLLexer(input_stream)
+            
+            # Create token stream
+            token_stream = CommonTokenStream(lexer)
+            
+            # Create parser
+            parser = DeepLearningDSLParser(token_stream)
+            
+            # Reset error listener but keep its errors
+            self.error_listener.errors = []
+            parser.removeErrorListeners()
+            parser.addErrorListener(self.error_listener)
+            
+            # Parse the program
+            tree = parser.program()
+            
+            # Check for syntax errors
+            if self.error_listener.errors:
+                return None, self.error_listener.errors
+            
+            # Visit the tree with the SAME interpreter instance (maintains state)
+            result = self.interpreter.visit(tree)
+            
+            return result, []
+            
+        except Exception as e:
+            return None, [str(e)]
+    
+    def get_variables(self):
+        """Get current variables from interpreter"""
+        return self.interpreter.variables.copy()
+    
+    def get_functions(self):
+        """Get current functions from interpreter"""
+        return self.interpreter.functions.copy()
+    
+    def clear_state(self):
+        """Clear interpreter state"""
+        self.interpreter.variables.clear()
+        self.interpreter.functions.clear()
+        self.interpreter.return_value = None
 
 class Console:
-    """Interactive console for the DSL"""
+    """Interactive console for the DSL with persistent interpreter state"""
     
     def __init__(self):
         self.history = []
-        self.variables = {}
-        self.functions = {}
         self.running = True
+        # Use persistent interpreter that maintains state
+        self.dsl_interpreter = PersistentDSLInterpreter()
         self.show_welcome()
     
     def show_welcome(self):
         """Display welcome message"""
         print("\n" + "="*60)
         print("  Deep Learning DSL Interactive Console")
-        print("  Version 1.0")
+        print("  Version 1.0 - Persistent State")
         print("="*60)
+        print("\nFeatures:")
+        print("  ✅ Variables persist between commands")
+        print("  ✅ Functions persist between commands") 
+        print("  ✅ Multiline support for control structures")
+        print("  ✅ Full error handling and debugging")
         print("\nAvailable commands:")
         print("  :help     - Show this help message")
         print("  :history  - Show command history")
         print("  :clear    - Clear screen")
-        print("  :save     - Save current session")
-        print("  :load     - Load session from file")
+        print("  :reset    - Reset interpreter state (clear all variables)")
         print("  :vars     - Show current variables")
         print("  :funcs    - Show defined functions")
         print("  :exit     - Exit the console")
-        print("\nExample DSL syntax:")
-        print("  x = 5;")
-        print("  y = 3.14;")
-        print("  result = x + y * 2;")
-        print("  matrix = [[1, 2], [3, 4]];")
-        print("  print(result);")
+        print("\nExample session:")
+        print("  dsl> x = 10;")
+        print("  dsl> if (x > 5) {")
+        print("  ...>     print(\"x is greater than 5\");")
+        print("  ...> }")
         print("\nType your commands and press Enter...")
         print("-"*60 + "\n")
     
+    def is_incomplete_block(self, code):
+        """Check if code block is incomplete (unmatched braces)"""
+        open_braces = 0
+        in_string = False
+        escape_next = False
+        
+        for char in code:
+            if escape_next:
+                escape_next = False
+                continue
+                
+            if char == '\\':
+                escape_next = True
+                continue
+                
+            if char == '"' and not escape_next:
+                in_string = not in_string
+                continue
+                
+            if not in_string:
+                if char == '{':
+                    open_braces += 1
+                elif char == '}':
+                    open_braces -= 1
+        
+        return open_braces > 0
+    
+    def is_control_structure_start(self, line):
+        """Check if line starts a control structure"""
+        stripped = line.strip()
+        control_keywords = ['if', 'for', 'while', 'def', 'else']
+        
+        for keyword in control_keywords:
+            if stripped.startswith(keyword + ' ') or stripped.startswith(keyword + '('):
+                return True
+        return False
+    
+    def read_multiline_input(self, initial_line=""):
+        """Read multiple lines until block is complete"""
+        lines = []
+        if initial_line:
+            lines.append(initial_line)
+        
+        current_code = initial_line
+        continuation_prompt = "...> "
+        
+        while True:
+            try:
+                if self.is_incomplete_block(current_code):
+                    # Need more input
+                    line = input(continuation_prompt).strip()
+                    
+                    # Check for special commands to exit multiline mode
+                    if line.upper() == 'END' or line == '':
+                        break
+                    
+                    lines.append(line)
+                    current_code = '\n'.join(lines)
+                else:
+                    # Block seems complete
+                    break
+                    
+            except KeyboardInterrupt:
+                print("\n[Multiline input cancelled]")
+                return ""
+            except EOFError:
+                break
+        
+        return '\n'.join(lines)
+    
     def run(self):
-        """Main console loop"""
+        """Main console loop with persistent state"""
         while self.running:
             try:
                 # Get user input
@@ -58,11 +191,23 @@ class Console:
                 if not user_input:
                     continue
                 
+                # Check if this might be a multiline structure
+                if (self.is_control_structure_start(user_input) or 
+                    self.is_incomplete_block(user_input)):
+                    
+                    print("[Multiline mode - type END or empty line to execute]")
+                    complete_code = self.read_multiline_input(user_input)
+                    
+                    if not complete_code.strip():
+                        continue
+                        
+                    user_input = complete_code
+                
                 # Add to history
                 self.history.append(user_input)
                 
-                # Execute DSL code
-                result, errors = interpret_code(user_input)
+                # Execute DSL code using persistent interpreter
+                result, errors = self.dsl_interpreter.execute(user_input)
                 
                 if errors:
                     print("Errors:")
@@ -96,10 +241,8 @@ class Console:
             self.show_history()
         elif command == ':clear':
             self.clear_screen()
-        elif command == ':save':
-            self.save_session()
-        elif command == ':load':
-            self.load_session()
+        elif command == ':reset':
+            self.reset_interpreter()
         elif command == ':vars':
             self.show_variables()
         elif command == ':funcs':
@@ -111,26 +254,75 @@ class Console:
             self.show_examples()
         elif command == ':version':
             self.show_version()
+        elif command == ':save':
+            self.save_session()
+        elif command == ':load':
+            self.load_session()
         else:
             print(f"Unknown command: {command}")
             print("Type :help for available commands.")
+    
+    def reset_interpreter(self):
+        """Reset the interpreter state"""
+        self.dsl_interpreter.clear_state()
+        print("✅ Interpreter state reset. All variables and functions cleared.")
+    
+    def show_variables(self):
+        """Show current variables"""
+        variables = self.dsl_interpreter.get_variables()
+        print("\nCurrent Variables:")
+        print("-" * 40)
+        if not variables:
+            print("  (no variables defined)")
+        else:
+            for name, value in variables.items():
+                # Format value for display
+                if isinstance(value, list):
+                    if value and isinstance(value[0], list):
+                        # Matrix
+                        print(f"  {name}: Matrix {len(value)}x{len(value[0])}")
+                    else:
+                        # List
+                        value_str = str(value)
+                        if len(value_str) > 50:
+                            value_str = value_str[:47] + "..."
+                        print(f"  {name}: {value_str}")
+                else:
+                    print(f"  {name}: {value} ({type(value).__name__})")
+        print()
+    
+    def show_functions(self):
+        """Show defined functions"""
+        functions = self.dsl_interpreter.get_functions()
+        print("\nDefined Functions:")
+        print("-" * 40)
+        if not functions:
+            print("  (no functions defined)")
+        else:
+            for name, func_def in functions.items():
+                params = func_def.get('params', [])
+                param_str = ', '.join(params) if params else ''
+                print(f"  {name}({param_str})")
+        print()
     
     def show_help(self):
         """Show help message"""
         print("\nDSL Console Help")
         print("-" * 40)
         print("Console commands (start with ':'):")
-        print("  :help     - Show this help")
-        print("  :history  - Show command history")
-        print("  :clear    - Clear screen")
-        print("  :save     - Save session to file")
-        print("  :load     - Load session from file")
-        print("  :vars     - Show current variables")
-        print("  :funcs    - Show defined functions")
-        print("  :examples - Show DSL examples")
-        print("  :version  - Show version info")
-        print("  :exit     - Exit console")
+        print("  :help      - Show this help")
+        print("  :history   - Show command history")
+        print("  :clear     - Clear screen")
+        print("  :reset     - Reset interpreter (clear variables/functions)")
+        print("  :vars      - Show current variables")
+        print("  :funcs     - Show defined functions")
+        print("  :examples  - Show DSL examples")
+        print("  :save      - Save session to file")
+        print("  :load      - Load session from file")
+        print("  :version   - Show version info")
+        print("  :exit      - Exit console")
         print("\nDSL Language Features:")
+        print("  • Variables persist between commands")
         print("  • Arithmetic: +, -, *, /, %, ^")
         print("  • Variables: x = 5;")
         print("  • Matrices: [[1,2],[3,4]]")
@@ -150,8 +342,64 @@ class Console:
             print("  (empty)")
         else:
             for i, cmd in enumerate(self.history, 1):
-                print(f"  {i:3d}: {cmd}")
+                # Show multiline commands in a compact way
+                display_cmd = cmd.replace('\n', ' \\n ')
+                if len(display_cmd) > 60:
+                    display_cmd = display_cmd[:57] + "..."
+                print(f"  {i:3d}: {display_cmd}")
         print()
+    
+    def show_examples(self):
+        """Show DSL examples with persistent state"""
+        print("\nDSL Examples (variables persist between commands):")
+        print("-" * 50)
+        
+        examples = [
+            ("1. Basic variables", [
+                "x = 10;",
+                "y = 5;", 
+                "z = x + y;",
+                "print(z);"
+            ]),
+            
+            ("2. Conditional with persistent variable", [
+                "age = 25;",
+                "if (age >= 18) {",
+                "    print(\"Adult\");",
+                "} else {",
+                "    print(\"Minor\");",
+                "}"
+            ]),
+            
+            ("3. Function definition and use", [
+                "def square(x) {",
+                "    return x * x;",
+                "}",
+                "result = square(7);",
+                "print(result);"
+            ]),
+            
+            ("4. Matrix operations", [
+                "m1 = [[1, 2], [3, 4]];",
+                "m2 = [[5, 6], [7, 8]];",
+                "result = matmult(m1, m2);",
+                "print(result);"
+            ]),
+            
+            ("5. Loop with accumulator", [
+                "sum = 0;",
+                "for (i = 1; i <= 5; i = i + 1) {",
+                "    sum = sum + i;",
+                "}",
+                "print(sum);"
+            ])
+        ]
+        
+        for title, commands in examples:
+            print(f"{title}:")
+            for cmd in commands:
+                print(f"  dsl> {cmd}")
+            print()
     
     def clear_screen(self):
         """Clear the console screen"""
@@ -169,9 +417,9 @@ class Console:
         try:
             with open(filename, 'w') as f:
                 f.write("# DSL Session saved\n")
-                f.write("# Generated automatically\n\n")
+                f.write("# Variables and functions will be recreated\n\n")
                 for cmd in self.history:
-                    f.write(f"{cmd}\n")
+                    f.write(f"{cmd}\n\n")
             print(f"Session saved to {filename}")
         except Exception as e:
             print(f"Error saving session: {e}")
@@ -189,79 +437,20 @@ class Console:
                 return
             
             with open(filename, 'r') as f:
-                lines = f.readlines()
+                content = f.read()
             
             print(f"Loading session from {filename}...")
-            for line in lines:
-                line = line.strip()
-                if line and not line.startswith('#'):
-                    print(f"Executing: {line}")
-                    self.history.append(line)
-                    result, errors = interpret_code(line)
-                    if errors:
-                        print(f"  Errors: {errors}")
-                    elif result is not None:
-                        print(f"  Result: {result}")
+            
+            # Execute the entire file content
+            result, errors = self.dsl_interpreter.execute(content)
+            if errors:
+                print(f"Errors: {errors}")
+            elif result is not None:
+                print(f"Result: {result}")
             
             print("Session loaded successfully.")
         except Exception as e:
             print(f"Error loading session: {e}")
-    
-    def show_variables(self):
-        """Show current variables (placeholder)"""
-        print("\nCurrent Variables:")
-        print("-" * 40)
-        print("(Variable tracking not implemented in current interpreter)")
-        print("Variables are tracked internally by the interpreter.")
-        print()
-    
-    def show_functions(self):
-        """Show defined functions (placeholder)"""
-        print("\nDefined Functions:")
-        print("-" * 40)
-        print("(Function tracking not implemented in current interpreter)")
-        print("Functions are tracked internally by the interpreter.")
-        print()
-    
-    def show_examples(self):
-        """Show DSL examples"""
-        print("\nDSL Examples:")
-        print("-" * 40)
-        
-        examples = [
-            ("Basic arithmetic", 
-             "x = 10;\ny = 5;\nresult = x + y * 2;\nprint(result);"),
-            
-            ("Matrix operations",
-             "m1 = [[1, 2], [3, 4]];\nm2 = [[5, 6], [7, 8]];\nresult = matmult(m1, m2);\nprint(result);"),
-            
-            ("Trigonometric functions",
-             "angle = 3.14159 / 4;\nsine_val = sin(angle);\ncosine_val = cos(angle);\nprint(sine_val);\nprint(cosine_val);"),
-            
-            ("Conditional statement",
-             "x = 15;\nif (x > 10) {\n    print(\"x is greater than 10\");\n} else {\n    print(\"x is not greater than 10\");\n}"),
-            
-            ("For loop",
-             "sum = 0;\nfor (i = 1; i <= 5; i = i + 1) {\n    sum = sum + i;\n}\nprint(sum);"),
-            
-            ("User-defined function",
-             "def square(x) {\n    return x * x;\n}\nresult = square(7);\nprint(result);"),
-            
-            ("Linear regression",
-             "X = [[1], [2], [3], [4], [5]];\ny = [2, 4, 6, 8, 10];\nmodel = linear_regression(X, y);\npredictions = predict(model, [[6], [7]]);\nprint(predictions);"),
-            
-            ("File operations",
-             "data = [1, 2, 3, 4, 5];\nwrite_file(\"data.txt\", data);\nloaded_data = read_file(\"data.txt\");\nprint(loaded_data);"),
-            
-            ("Plotting",
-             "data = [1, 4, 2, 8, 5, 7];\nplot(data);\nhistogram(data);")
-        ]
-        
-        for i, (title, code) in enumerate(examples, 1):
-            print(f"{i}. {title}:")
-            for line in code.split('\n'):
-                print(f"     {line}")
-            print()
     
     def show_version(self):
         """Show version information"""
@@ -272,65 +461,16 @@ class Console:
         print("  Implementation: Pure Python")
         print("  Features: Arithmetic, Matrices, ML/DL, I/O, Plotting")
         print("  Grammar Type: LL(1)")
+        print("  State Management: Persistent")
+        print("  Multiline Support: Enabled")
         print()
-
-
-class FileRunner:
-    """Run DSL files non-interactively"""
-    
-    def __init__(self):
-        pass
-    
-    def run_file(self, filename, verbose=False):
-        """Execute a DSL file"""
-        if not os.path.exists(filename):
-            print(f"Error: File '{filename}' not found.")
-            return False
-        
-        try:
-            with open(filename, 'r') as f:
-                content = f.read()
-            
-            if verbose:
-                print(f"Executing file: {filename}")
-                print("-" * 40)
-            
-            # Execute the entire file content
-            result, errors = interpret_code(content)
-            
-            if errors:
-                print("Execution errors:")
-                for error in errors:
-                    print(f"  {error}")
-                return False
-            else:
-                if verbose and result is not None:
-                    print(f"Final result: {result}")
-                return True
-                
-        except Exception as e:
-            print(f"Error reading file '{filename}': {e}")
-            return False
-    
-    def run_files(self, filenames, verbose=False):
-        """Execute multiple DSL files"""
-        results = {}
-        
-        for filename in filenames:
-            if verbose:
-                print(f"\n{'='*50}")
-                print(f"Processing: {filename}")
-                print(f"{'='*50}")
-            
-            results[filename] = self.run_file(filename, verbose)
-        
-        return results
 
 
 def main():
     """Main entry point"""
     if len(sys.argv) > 1:
         # File execution mode
+        from interface.file_runner import FileRunner
         runner = FileRunner()
         
         if '--verbose' in sys.argv or '-v' in sys.argv:
@@ -342,19 +482,8 @@ def main():
         
         if files:
             results = runner.run_files(files, verbose)
-            
-            # Show summary
-            if len(files) > 1:
-                print(f"\n{'='*50}")
-                print("Execution Summary:")
-                print(f"{'='*50}")
-                for filename, success in results.items():
-                    status = "SUCCESS" if success else "FAILED"
-                    print(f"  {filename}: {status}")
-        else:
-            print("No files specified for execution.")
     else:
-        # Interactive console mode
+        # Interactive console mode with persistent state
         console = Console()
         console.run()
 

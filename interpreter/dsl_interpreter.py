@@ -247,25 +247,46 @@ class DSLInterpreter(DeepLearningDSLBaseVisitor):
         return elements
     
     def visitMatrix_operation(self, ctx):
-        """Handle matrix operations"""
-        if ctx.TRANSPOSE():
-            matrix = self.visit(ctx.expression())
-            return self.matrix.transpose(matrix)
-        elif ctx.INVERSE():
-            matrix = self.visit(ctx.expression())
-            return self.matrix.inverse(matrix)
-        elif ctx.MATMULT():
-            matrix1 = self.visit(ctx.expression(0))
-            matrix2 = self.visit(ctx.expression(1))
-            return self.matrix.multiply(matrix1, matrix2)
-        elif ctx.MATADD():
-            matrix1 = self.visit(ctx.expression(0))
-            matrix2 = self.visit(ctx.expression(1))
-            return self.matrix.add(matrix1, matrix2)
-        elif ctx.MATSUB():
-            matrix1 = self.visit(ctx.expression(0))
-            matrix2 = self.visit(ctx.expression(1))
-            return self.matrix.subtract(matrix1, matrix2)
+        """Handle matrix operations - FIXED!"""
+        try:
+            if ctx.TRANSPOSE():
+                # SOLUCIÓN: ctx.expression() devuelve lista, usar [0]
+                expr = ctx.expression()
+                # Verifica si expr es una lista de expresiones y toma la primera
+                if isinstance(expr, list) and len(expr) > 0:
+                    matrix = self.visit(expr[0])
+                else:
+                    # Si no es una lista, visita la expresión directamente
+                    matrix = self.visit(expr)
+                return self.matrix.transpose(matrix)
+                
+            elif ctx.INVERSE():
+                # SOLUCIÓN: ctx.expression() devuelve lista, usar [0]  
+                expr = ctx.expression()
+                # Verifica si expr es una lista de expresiones y toma la primera
+                if isinstance(expr, list) and len(expr) > 0:
+                    matrix = self.visit(expr[0])
+                else:
+                    # Si no es una lista, visita la expresión directamente
+                    matrix = self.visit(expr)
+                return self.matrix.inverse(matrix)
+                
+            elif ctx.MATMULT():
+                matrix1 = self.visit(ctx.expression(0))
+                matrix2 = self.visit(ctx.expression(1))
+                return self.matrix.multiply(matrix1, matrix2)
+            elif ctx.MATADD():
+                matrix1 = self.visit(ctx.expression(0))
+                matrix2 = self.visit(ctx.expression(1))
+                return self.matrix.add(matrix1, matrix2)
+            elif ctx.MATSUB():
+                matrix1 = self.visit(ctx.expression(0))
+                matrix2 = self.visit(ctx.expression(1))
+                return self.matrix.subtract(matrix1, matrix2)
+                
+        except Exception as e:
+            raise RuntimeError(f"Matrix operation error: {str(e)}")
+        
         return None
     
     def visitConditional(self, ctx):
@@ -372,9 +393,12 @@ class DSLInterpreter(DeepLearningDSLBaseVisitor):
         return self.return_value
     
     def visitFunction_call(self, ctx):
-        """Handle function calls"""
-        if ctx.ID():
-            # User-defined function
+        """Handle function calls - CORREGIDO"""
+        # CORRECCIÓN: Verificar primero si es una función de usuario
+        if hasattr(ctx, 'user_function_call') and ctx.user_function_call():
+            return self.visit(ctx.user_function_call())
+        elif ctx.ID():
+            # Llamada de función de usuario (sin user_function_call)
             func_name = ctx.ID().getText()
             args = self.visit(ctx.arg_list()) if ctx.arg_list() else []
             return self.call_user_function(func_name, args)
@@ -385,6 +409,12 @@ class DSLInterpreter(DeepLearningDSLBaseVisitor):
         elif ctx.plot_function():
             return self.visit(ctx.plot_function())
         return None
+    
+    def visitUser_function_call(self, ctx):
+        """Handle user function calls"""
+        func_name = ctx.ID().getText()
+        args = self.visit(ctx.arg_list()) if ctx.arg_list() else []
+        return self.call_user_function(func_name, args)
     
     def visitArg_list(self, ctx):
         """Get function arguments"""
@@ -525,16 +555,15 @@ class DSLErrorListener(ErrorListener):
     def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
         error_msg = f"Syntax error at line {line}, column {column}: {msg}"
         self.errors.append(error_msg)
-        print(error_msg)
     
     def reportAmbiguity(self, recognizer, dfa, startIndex, stopIndex, exact, ambigAlts, configs):
-        print(f"Ambiguity detected at positions {startIndex}-{stopIndex}")
+        pass  # Silenciar ambigüedades
     
     def reportAttemptingFullContext(self, recognizer, dfa, startIndex, stopIndex, conflictingAlts, configs):
-        print(f"Attempting full context at positions {startIndex}-{stopIndex}")
+        pass  # Silenciar
     
     def reportContextSensitivity(self, recognizer, dfa, startIndex, stopIndex, prediction, configs):
-        print(f"Context sensitivity at positions {startIndex}-{stopIndex}")
+        pass  # Silenciar
 
 
 def interpret_code(code):
@@ -596,4 +625,3 @@ if __name__ == "__main__":
             print(f"  {error}")
     else:
         print(f"Program executed successfully. Result: {result}")
-
