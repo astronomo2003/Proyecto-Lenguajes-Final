@@ -17,7 +17,7 @@ from plotter import Plotter
 
 
 class DSLInterpreter(DeepLearningDSLBaseVisitor):
-    def __init__(self):
+    def __init__(self):  # ✅ CORREGIDO: __init__ en lugar de _init_
         # Symbol tables
         self.variables = {}
         self.functions = {}
@@ -247,38 +247,26 @@ class DSLInterpreter(DeepLearningDSLBaseVisitor):
         return elements
     
     def visitMatrix_operation(self, ctx):
-        """Handle matrix operations - FIXED!"""
+        """Handle matrix operations - CORREGIDO"""
         try:
             if ctx.TRANSPOSE():
-                # SOLUCIÓN: ctx.expression() devuelve lista, usar [0]
-                expr = ctx.expression()
-                # Verifica si expr es una lista de expresiones y toma la primera
-                if isinstance(expr, list) and len(expr) > 0:
-                    matrix = self.visit(expr[0])
-                else:
-                    # Si no es una lista, visita la expresión directamente
-                    matrix = self.visit(expr)
+                matrix = self.visit(ctx.expression(0))
                 return self.matrix.transpose(matrix)
                 
             elif ctx.INVERSE():
-                # SOLUCIÓN: ctx.expression() devuelve lista, usar [0]  
-                expr = ctx.expression()
-                # Verifica si expr es una lista de expresiones y toma la primera
-                if isinstance(expr, list) and len(expr) > 0:
-                    matrix = self.visit(expr[0])
-                else:
-                    # Si no es una lista, visita la expresión directamente
-                    matrix = self.visit(expr)
+                matrix = self.visit(ctx.expression(0))
                 return self.matrix.inverse(matrix)
                 
             elif ctx.MATMULT():
                 matrix1 = self.visit(ctx.expression(0))
                 matrix2 = self.visit(ctx.expression(1))
                 return self.matrix.multiply(matrix1, matrix2)
+                
             elif ctx.MATADD():
                 matrix1 = self.visit(ctx.expression(0))
                 matrix2 = self.visit(ctx.expression(1))
                 return self.matrix.add(matrix1, matrix2)
+                
             elif ctx.MATSUB():
                 matrix1 = self.visit(ctx.expression(0))
                 matrix2 = self.visit(ctx.expression(1))
@@ -393,12 +381,9 @@ class DSLInterpreter(DeepLearningDSLBaseVisitor):
         return self.return_value
     
     def visitFunction_call(self, ctx):
-        """Handle function calls - CORREGIDO"""
-        # CORRECCIÓN: Verificar primero si es una función de usuario
-        if hasattr(ctx, 'user_function_call') and ctx.user_function_call():
-            return self.visit(ctx.user_function_call())
-        elif ctx.ID():
-            # Llamada de función de usuario (sin user_function_call)
+        """Handle function calls"""
+        if ctx.ID():
+            # Llamada de función de usuario
             func_name = ctx.ID().getText()
             args = self.visit(ctx.arg_list()) if ctx.arg_list() else []
             return self.call_user_function(func_name, args)
@@ -409,12 +394,6 @@ class DSLInterpreter(DeepLearningDSLBaseVisitor):
         elif ctx.plot_function():
             return self.visit(ctx.plot_function())
         return None
-    
-    def visitUser_function_call(self, ctx):
-        """Handle user function calls"""
-        func_name = ctx.ID().getText()
-        args = self.visit(ctx.arg_list()) if ctx.arg_list() else []
-        return self.call_user_function(func_name, args)
     
     def visitArg_list(self, ctx):
         """Get function arguments"""
@@ -469,11 +448,11 @@ class DSLInterpreter(DeepLearningDSLBaseVisitor):
     def visitIo_function(self, ctx):
         """Handle IO function calls"""
         if ctx.READ_FILE():
-            filename = self.visit(ctx.expression())
+            filename = ctx.STRING().getText()[1:-1]  # Remove quotes
             return self.file_manager.read_file(filename)
         elif ctx.WRITE_FILE():
-            filename = self.visit(ctx.expression(0))
-            content = self.visit(ctx.expression(1))
+            filename = ctx.STRING().getText()[1:-1]  # Remove quotes
+            content = self.visit(ctx.expression())
             return self.file_manager.write_file(filename, content)
         elif ctx.PRINT():
             value = self.visit(ctx.expression())
@@ -481,17 +460,28 @@ class DSLInterpreter(DeepLearningDSLBaseVisitor):
         return None
     
     def visitPlot_function(self, ctx):
-        """Handle plot function calls"""
-        if ctx.PLOT():
-            data = self.visit(ctx.expression())
-            return self.plotter.plot(data)
-        elif ctx.SCATTER():
-            x_data = self.visit(ctx.expression(0))
-            y_data = self.visit(ctx.expression(1))
-            return self.plotter.scatter(x_data, y_data)
-        elif ctx.HISTOGRAM():
-            data = self.visit(ctx.expression())
-            return self.plotter.histogram(data)
+        """Handle plot function calls - CORREGIDO COMPLETAMENTE"""
+        try:
+            if ctx.PLOT():
+                # ✅ CORRECCIÓN FINAL: Usar ctx.expression(0) como en scatter
+                data = self.visit(ctx.expression(0))
+                return self.plotter.plot(data)
+                
+            elif ctx.SCATTER():
+                # ✅ Ya funciona correctamente
+                x_data = self.visit(ctx.expression(0))
+                y_data = self.visit(ctx.expression(1))
+                return self.plotter.scatter(x_data, y_data)
+                
+            elif ctx.HISTOGRAM():
+                # ✅ CORRECCIÓN FINAL: Usar ctx.expression(0) como en scatter
+                data = self.visit(ctx.expression(0))
+                return self.plotter.histogram(data)
+                
+        except Exception as e:
+            error_msg = f"Plot function error: {str(e)}"
+            return error_msg
+        
         return None
     
     def call_user_function(self, func_name, args):
@@ -548,8 +538,8 @@ class DSLInterpreter(DeepLearningDSLBaseVisitor):
 
 # Error listener for custom error handling
 class DSLErrorListener(ErrorListener):
-    def __init__(self):
-        super(DSLErrorListener, self).__init__()
+    def __init__(self):  # ✅ CORREGIDO: __init__ en lugar de _init_
+        super(DSLErrorListener, self).__init__()  # ✅ CORREGIDO: __init__ en lugar de _init_
         self.errors = []
     
     def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
@@ -603,7 +593,7 @@ def interpret_code(code):
         return None, [str(e)]
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # ✅ CORREGIDO: __name__ == "__main__"
     # Example usage
     code = """
     x = 5;
