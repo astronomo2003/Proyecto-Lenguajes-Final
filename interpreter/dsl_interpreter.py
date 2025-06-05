@@ -140,7 +140,9 @@ class DSLInterpreter(DeepLearningDSLBaseVisitor):
             return self.visit_factor_rest(ctx.factor_rest(), result)
         else:
             return left_value
-    
+    def visitList_expr(self, ctx):
+        elements = self.visit(ctx.expression_list())
+        return elements
     def visitBase(self, ctx):
         """Evaluate base expressions"""
         if ctx.ID():
@@ -159,6 +161,8 @@ class DSLInterpreter(DeepLearningDSLBaseVisitor):
         elif ctx.expression():
             # Parenthesized expression
             return self.visit(ctx.expression())
+        elif ctx.list_expr():
+            return self.visit(ctx.list_expr())
         elif ctx.matrix_expr():
             return self.visit(ctx.matrix_expr())
         elif ctx.function_call():

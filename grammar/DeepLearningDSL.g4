@@ -2,7 +2,7 @@ grammar DeepLearningDSL;
 
 // Regla inicial
 program: statement_list EOF;
-
+list_expr: LBRACKET expression_list RBRACKET ;
 statement_list: statement statement_list | ;
 
 statement: assignment SEMICOLON
@@ -31,6 +31,7 @@ base: ID
     | FLOAT
     | STRING
     | LPAREN expression RPAREN
+    | list_expr        
     | matrix_expr
     | function_call
     | unary_expr
